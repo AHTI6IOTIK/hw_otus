@@ -13,7 +13,7 @@ func Unpack(st string) (string, error) {
 
 	sta := strings.Split(st, "")
 	count := len(sta)
-	next := 1
+	next := 0
 
 	for i := 0; i < count; i += next {
 		currentItem := sta[i]
@@ -37,10 +37,6 @@ func Unpack(st string) (string, error) {
 		} else {
 			result.WriteString(strings.Repeat(currentItem, size))
 			next = 2
-		}
-
-		if i+next > count {
-			next = 0
 		}
 	}
 
