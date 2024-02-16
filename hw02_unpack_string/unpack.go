@@ -11,36 +11,32 @@ var ErrInvalidString = errors.New("invalid string")
 func Unpack(st string) (string, error) {
 	var result strings.Builder
 
-	sta := strings.Split(st, "")
-	count := len(sta)
-	next := 1
+	splitStr := strings.Split(st, "")
+	count := len(splitStr)
+	next := 0
 
 	for i := 0; i < count; i += next {
-		currentItem := sta[i]
+		currentItem := splitStr[i]
 		_, err := strconv.Atoi(currentItem)
 		if err == nil {
 			return "", ErrInvalidString
 		}
 
 		nextItem := ""
-		size := 0
+		repeatCount := 0
 
 		if i+1 < count {
-			nextItem = sta[i+1]
+			nextItem = splitStr[i+1]
 		}
 
-		size, err = strconv.Atoi(nextItem)
+		repeatCount, err = strconv.Atoi(nextItem)
 
 		if err != nil {
 			result.WriteString(currentItem)
 			next = 1
 		} else {
-			result.WriteString(strings.Repeat(currentItem, size))
+			result.WriteString(strings.Repeat(currentItem, repeatCount))
 			next = 2
-		}
-
-		if i+next > count {
-			next = 0
 		}
 	}
 
