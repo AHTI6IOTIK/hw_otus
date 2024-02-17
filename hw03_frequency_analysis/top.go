@@ -11,19 +11,28 @@ type WordRepeat struct {
 }
 
 type WordRepetitionCounter struct {
-	words []WordRepeat
-	step  int
+	convertedCache []WordRepeat
+	words          map[string]int
+	step           int
 }
 
 func New(size int) WordRepetitionCounter {
 	return WordRepetitionCounter{
 		step:  0,
-		words: make([]WordRepeat, size),
+		words: make(map[string]int, size),
 	}
 }
 
 func (a *WordRepetitionCounter) GetWords() []WordRepeat {
-	return a.words
+	result := make([]WordRepeat, len(a.words))
+	for k, v := range a.words {
+		result = append(result, WordRepeat{
+			value: k,
+			count: v,
+		})
+	}
+
+	return result
 }
 
 func (a *WordRepetitionCounter) GetStep() int {
@@ -31,48 +40,47 @@ func (a *WordRepetitionCounter) GetStep() int {
 }
 
 func (a *WordRepetitionCounter) Append(word string) {
-	for i, v := range a.words {
-		if v.value == word {
-			v.count++
-			a.words[i] = v
-
-			return
-		}
+	if _, ok := a.words[word]; ok {
+		a.words[word]++
+	} else {
+		a.words[word] = 1
 	}
-
-	a.words[a.step] = WordRepeat{
-		value: word,
-		count: 1,
-	}
-
-	a.step++
 }
 
 func (a *WordRepetitionCounter) GetTop(count int) []WordRepeat {
-	if count > a.step {
-		count = a.step
+	wordsCount := len(a.words)
+	if count > wordsCount {
+		count = wordsCount
 	}
 
-	takenItems := make(map[int]struct{}, a.step)
-	topItems := make([]WordRepeat, 0, count)
+	takenItems := make(map[string]struct{}, a.step)
+	topItems := make([]string, 0, count)
 
 	for len(topItems) < count {
-		selectedValue := 0
-		maxItem := WordRepeat{}
-		for i := 0; i < a.step; i++ {
-			_, alreadySelected := takenItems[i]
-			currentItem := a.words[i]
-			if currentItem.count > maxItem.count && !alreadySelected {
-				maxItem = currentItem
-				selectedValue = i
+		maxItem := 0
+		selectedItem := ""
+
+		for i, v := range a.words {
+			_, isAlreadySelected := takenItems[i]
+			if v > maxItem && !isAlreadySelected {
+				maxItem = v
+				selectedItem = i
 			}
 		}
 
-		topItems = append(topItems, a.words[selectedValue])
-		takenItems[selectedValue] = struct{}{}
+		topItems = append(topItems, selectedItem)
+		takenItems[selectedItem] = struct{}{}
 	}
 
-	return topItems
+	result := make([]WordRepeat, 0, len(topItems))
+	for _, v := range topItems {
+		result = append(result, WordRepeat{
+			value: v,
+			count: a.words[v],
+		})
+	}
+
+	return result
 }
 
 func Top10(str string) []string {
