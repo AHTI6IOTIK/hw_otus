@@ -24,13 +24,19 @@ func New(size int) WordRepetitionCounter {
 }
 
 func (a *WordRepetitionCounter) GetWords() []WordRepeat {
-	result := make([]WordRepeat, len(a.words))
+	if len(a.convertedCache) > 0 {
+		return a.convertedCache
+	}
+
+	result := make([]WordRepeat, 0, len(a.words))
 	for k, v := range a.words {
 		result = append(result, WordRepeat{
 			value: k,
 			count: v,
 		})
 	}
+
+	a.convertedCache = result
 
 	return result
 }
@@ -40,8 +46,8 @@ func (a *WordRepetitionCounter) GetStep() int {
 }
 
 func (a *WordRepetitionCounter) Append(word string) {
-	if _, ok := a.words[word]; ok {
-		a.words[word]++
+	if v, ok := a.words[word]; ok {
+		a.words[word] = v + 1
 	} else {
 		a.words[word] = 1
 	}
