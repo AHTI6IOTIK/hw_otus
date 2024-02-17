@@ -98,7 +98,6 @@ func TestByExample(t *testing.T) {
 	require.Equal(t, expected, res)
 }
 
-//nolint:funlen
 func TestWordRepetitionCounter(t *testing.T) {
 	testCases := []struct {
 		name              string
