@@ -213,6 +213,116 @@ func TestWordRepetitionCounter_case(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "Тестируем корректности топ 1",
+			configuredCounter: func(size int) WordRepetitionCounter {
+				wordRepetitionCounter := New(size)
+
+				return wordRepetitionCounter
+			},
+			prepareCounter: func(w *WordRepetitionCounter) {
+				w.Append("1")
+				w.Append("2")
+				w.Append("3")
+				w.Append("4")
+				w.Append("5")
+				w.Append("2")
+				w.Append("2")
+			},
+			topRequest:   1,
+			expectedStep: 5,
+			expectedTop: []WordRepeat{
+				{
+					value: "2",
+					count: 3,
+				},
+			},
+			expectedWord: []WordRepeat{
+				{
+					value: "1",
+					count: 1,
+				},
+				{
+					value: "2",
+					count: 3,
+				},
+				{
+					value: "3",
+					count: 1,
+				},
+				{
+					value: "4",
+					count: 1,
+				},
+				{
+					value: "5",
+					count: 1,
+				},
+			},
+		},
+		{
+			name: "Тестируем корректности топ ALL",
+			configuredCounter: func(size int) WordRepetitionCounter {
+				wordRepetitionCounter := New(size)
+
+				return wordRepetitionCounter
+			},
+			prepareCounter: func(w *WordRepetitionCounter) {
+				w.Append("1")
+				w.Append("2")
+				w.Append("3")
+				w.Append("4")
+				w.Append("5")
+				w.Append("2")
+				w.Append("2")
+			},
+			topRequest:   5,
+			expectedStep: 5,
+			expectedTop: []WordRepeat{
+				{
+					value: "2",
+					count: 3,
+				},
+				{
+					value: "1",
+					count: 1,
+				},
+				{
+					value: "3",
+					count: 1,
+				},
+				{
+					value: "4",
+					count: 1,
+				},
+				{
+					value: "5",
+					count: 1,
+				},
+			},
+			expectedWord: []WordRepeat{
+				{
+					value: "1",
+					count: 1,
+				},
+				{
+					value: "2",
+					count: 3,
+				},
+				{
+					value: "3",
+					count: 1,
+				},
+				{
+					value: "4",
+					count: 1,
+				},
+				{
+					value: "5",
+					count: 1,
+				},
+			},
+		},
 	}
 
 	for _, tc := range testCases {
