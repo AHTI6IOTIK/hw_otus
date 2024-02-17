@@ -13,12 +13,10 @@ type WordRepeat struct {
 type WordRepetitionCounter struct {
 	convertedCache []WordRepeat
 	words          map[string]int
-	step           int
 }
 
 func New(size int) WordRepetitionCounter {
 	return WordRepetitionCounter{
-		step:  0,
 		words: make(map[string]int, size),
 	}
 }
@@ -41,8 +39,8 @@ func (a *WordRepetitionCounter) GetWords() []WordRepeat {
 	return result
 }
 
-func (a *WordRepetitionCounter) GetStep() int {
-	return a.step
+func (a *WordRepetitionCounter) GetSize() int {
+	return len(a.words)
 }
 
 func (a *WordRepetitionCounter) Append(word string) {
@@ -59,7 +57,7 @@ func (a *WordRepetitionCounter) GetTop(count int) []WordRepeat {
 		count = wordsCount
 	}
 
-	takenItems := make(map[string]struct{}, a.step)
+	takenItems := make(map[string]struct{}, a.GetSize())
 	topItems := make([]string, 0, count)
 
 	for len(topItems) < count {

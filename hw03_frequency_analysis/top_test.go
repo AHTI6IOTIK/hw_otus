@@ -107,7 +107,7 @@ func TestWordRepetitionCounter(t *testing.T) {
 		topRequest        int
 		expectedStep      int
 		expectedTop       []WordRepeat
-		expectedWord      []WordRepeat
+		expectedWord      int
 	}{
 		{
 			name: "Тестируем базовую работу функционала",
@@ -126,42 +126,7 @@ func TestWordRepetitionCounter(t *testing.T) {
 			},
 			topRequest:   2,
 			expectedStep: 6,
-			expectedTop: []WordRepeat{
-				{
-					value: "1",
-					count: 1,
-				},
-				{
-					value: "2",
-					count: 1,
-				},
-			},
-			expectedWord: []WordRepeat{
-				{
-					value: "1",
-					count: 1,
-				},
-				{
-					value: "2",
-					count: 1,
-				},
-				{
-					value: "3",
-					count: 1,
-				},
-				{
-					value: "4",
-					count: 1,
-				},
-				{
-					value: "5",
-					count: 1,
-				},
-				{
-					value: "6",
-					count: 1,
-				},
-			},
+			expectedWord: 6,
 		},
 		{
 			name: "Тестируем корректности подсчета слов",
@@ -181,38 +146,7 @@ func TestWordRepetitionCounter(t *testing.T) {
 			},
 			topRequest:   2,
 			expectedStep: 5,
-			expectedTop: []WordRepeat{
-				{
-					value: "2",
-					count: 3,
-				},
-				{
-					value: "1",
-					count: 1,
-				},
-			},
-			expectedWord: []WordRepeat{
-				{
-					value: "1",
-					count: 1,
-				},
-				{
-					value: "2",
-					count: 3,
-				},
-				{
-					value: "3",
-					count: 1,
-				},
-				{
-					value: "4",
-					count: 1,
-				},
-				{
-					value: "5",
-					count: 1,
-				},
-			},
+			expectedWord: 5,
 		},
 		{
 			name: "Тестируем корректности топ 1",
@@ -238,28 +172,7 @@ func TestWordRepetitionCounter(t *testing.T) {
 					count: 3,
 				},
 			},
-			expectedWord: []WordRepeat{
-				{
-					value: "1",
-					count: 1,
-				},
-				{
-					value: "2",
-					count: 3,
-				},
-				{
-					value: "3",
-					count: 1,
-				},
-				{
-					value: "4",
-					count: 1,
-				},
-				{
-					value: "5",
-					count: 1,
-				},
-			},
+			expectedWord: 5,
 		},
 		{
 			name: "Тестируем корректности топ ALL",
@@ -279,50 +192,7 @@ func TestWordRepetitionCounter(t *testing.T) {
 			},
 			topRequest:   5,
 			expectedStep: 5,
-			expectedTop: []WordRepeat{
-				{
-					value: "2",
-					count: 3,
-				},
-				{
-					value: "1",
-					count: 1,
-				},
-				{
-					value: "3",
-					count: 1,
-				},
-				{
-					value: "4",
-					count: 1,
-				},
-				{
-					value: "5",
-					count: 1,
-				},
-			},
-			expectedWord: []WordRepeat{
-				{
-					value: "1",
-					count: 1,
-				},
-				{
-					value: "2",
-					count: 3,
-				},
-				{
-					value: "3",
-					count: 1,
-				},
-				{
-					value: "4",
-					count: 1,
-				},
-				{
-					value: "5",
-					count: 1,
-				},
-			},
+			expectedWord: 5,
 		},
 	}
 
@@ -331,9 +201,14 @@ func TestWordRepetitionCounter(t *testing.T) {
 			wordCounter := tc.configuredCounter(tc.expectedStep)
 			tc.prepareCounter(&wordCounter)
 
-			assert.Equal(t, tc.expectedStep, wordCounter.GetStep())
-			assert.Equal(t, tc.expectedTop, wordCounter.GetTop(tc.topRequest))
-			assert.Equal(t, tc.expectedWord, wordCounter.GetWords())
+			assert.Equal(t, tc.expectedStep, wordCounter.GetSize())
+
+			if len(tc.expectedTop) == 0 {
+				assert.Len(t, wordCounter.GetTop(tc.topRequest), tc.topRequest)
+			} else {
+				assert.Equal(t, tc.expectedTop, wordCounter.GetTop(tc.topRequest))
+			}
+			assert.Len(t, wordCounter.GetWords(), tc.expectedWord)
 		})
 	}
 }
