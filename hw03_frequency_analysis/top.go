@@ -44,11 +44,7 @@ func (a *WordRepetitionCounter) GetSize() int {
 }
 
 func (a *WordRepetitionCounter) Append(word string) {
-	if v, ok := a.words[word]; ok {
-		a.words[word] = v + 1
-	} else {
-		a.words[word] = 1
-	}
+	a.words[word]++
 }
 
 func (a *WordRepetitionCounter) GetTop(count int) []WordRepeat {
