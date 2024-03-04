@@ -140,7 +140,9 @@ func (l *list) MoveToFront(i *ListItem) {
 	prevItem := i.Prev
 	nextItem := i.Next
 
-	prevItem.Next = nextItem
+	if prevItem != nil {
+		i.Prev.Next = nextItem
+	}
 
 	if nextItem != nil {
 		nextItem.Prev = prevItem
