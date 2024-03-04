@@ -124,5 +124,4 @@ func TestList(t *testing.T) {
 			l.Remove(lItem)
 		})
 	})
-
 }

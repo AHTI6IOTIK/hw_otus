@@ -69,7 +69,7 @@ func (l *list) PushFront(v interface{}) *ListItem {
 	return l.head
 }
 
-// PushBack добавляем элемент в конец
+// PushBack добавляем элемент в конец.
 func (l *list) PushBack(v interface{}) *ListItem {
 	listItem := &ListItem{
 		Value: v,
@@ -98,7 +98,7 @@ func (l *list) PushBack(v interface{}) *ListItem {
 }
 
 func (l *list) Remove(i *ListItem) {
-	if l.head == l.tail && l.head == i && l.tail == i {
+	if l.isTailEqualHead() && l.head == i {
 		l.head = nil
 		l.tail = nil
 		i.Next = nil
@@ -131,7 +131,11 @@ func (l *list) Remove(i *ListItem) {
 	l.size--
 }
 
-// MoveToFront переместит элемент в начало
+func (l *list) isTailEqualHead() bool {
+	return l.head == l.tail
+}
+
+// MoveToFront переместит элемент в начало.
 func (l *list) MoveToFront(i *ListItem) {
 	if l.head == i {
 		return
@@ -153,7 +157,7 @@ func (l *list) MoveToFront(i *ListItem) {
 	l.head = i
 }
 
-// fixRefs проставляет ссылки головы и хвоста друг на друга
+// fixRefs проставляет ссылки головы и хвоста друг на друга.
 func (l *list) fixRefs() {
 	if l.size != 2 {
 		return
