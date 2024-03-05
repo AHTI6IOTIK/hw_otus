@@ -71,28 +71,11 @@ func (l *list) PushBack(v interface{}) *ListItem {
 }
 
 func (l *list) Remove(i *ListItem) {
-	if l.isTailEqualHead() && l.head == i {
-		l.head = nil
-		l.tail = nil
-		i.Next = nil
-		i.Prev = nil
-		l.size = 0
-
-		return
-	}
-
 	switch i {
 	case l.head:
 		l.head = i.Next
-		if l.head != nil {
-			l.head.Prev = nil
-		}
 	case l.tail:
 		l.tail = i.Prev
-
-		if l.tail != nil {
-			l.tail.Next = nil
-		}
 	default:
 		prevItem := i.Prev
 		nextItem := i.Next
@@ -102,10 +85,6 @@ func (l *list) Remove(i *ListItem) {
 	}
 
 	l.size--
-}
-
-func (l *list) isTailEqualHead() bool {
-	return l.head == l.tail
 }
 
 // MoveToFront переместит элемент в начало.
@@ -118,7 +97,7 @@ func (l *list) MoveToFront(i *ListItem) {
 	nextItem := i.Next
 
 	if prevItem != nil {
-		i.Prev.Next = nextItem
+		prevItem.Next = nextItem
 	}
 
 	if nextItem != nil {
