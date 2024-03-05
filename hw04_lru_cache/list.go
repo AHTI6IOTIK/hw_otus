@@ -27,45 +27,28 @@ func (l *list) Len() int {
 }
 
 func (l *list) Front() *ListItem {
-	if l.head == nil && l.tail != nil {
-		return l.tail
-	}
-
 	return l.head
 }
 
 func (l *list) Back() *ListItem {
-	if l.tail == nil && l.head != nil {
-		return l.head
-	}
-
 	return l.tail
 }
 
 func (l *list) PushFront(v interface{}) *ListItem {
 	listItem := &ListItem{
 		Value: v,
+		Next:  l.head,
 	}
 
-	if l.size == 1 && l.tail == nil {
+	l.head = listItem
+
+	if l.size == 0 {
 		l.tail = l.head
-		l.head = nil
-	}
-
-	if l.head == nil {
-		l.head = listItem
 	} else {
-		listItem.Next = l.head
-		l.head.Prev = listItem
-		l.head = listItem
+		l.head.Next.Prev = l.head
 	}
 
 	l.size++
-
-	if l.size == 2 {
-		l.fixRefs()
-	}
-
 	return l.head
 }
 
@@ -73,27 +56,17 @@ func (l *list) PushFront(v interface{}) *ListItem {
 func (l *list) PushBack(v interface{}) *ListItem {
 	listItem := &ListItem{
 		Value: v,
+		Prev:  l.tail,
 	}
 
-	if l.size == 1 && l.head == nil {
-		l.head = l.tail
-		l.tail = nil
-	}
-
-	if l.tail == nil {
-		l.tail = listItem
+	if l.size == 0 {
+		l.head = listItem
 	} else {
-		listItem.Prev = l.tail
 		l.tail.Next = listItem
-		l.tail = listItem
 	}
 
+	l.tail = listItem
 	l.size++
-
-	if l.size == 2 {
-		l.fixRefs()
-	}
-
 	return l.tail
 }
 
@@ -155,16 +128,6 @@ func (l *list) MoveToFront(i *ListItem) {
 	i.Prev = nil
 	i.Next = l.head
 	l.head = i
-}
-
-// fixRefs проставляет ссылки головы и хвоста друг на друга.
-func (l *list) fixRefs() {
-	if l.size != 2 {
-		return
-	}
-
-	l.head.Next = l.tail
-	l.tail.Prev = l.head
 }
 
 func NewList() List {
