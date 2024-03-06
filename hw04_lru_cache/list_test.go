@@ -86,6 +86,10 @@ func TestList(t *testing.T) {
 				l.Remove(lItem)
 			}
 		})
+
+		require.Nil(t, l.Front())
+		require.Nil(t, l.Back())
+		require.Equal(t, l.Len(), 0)
 	})
 
 	t.Run("removing all elements from the beginning", func(t *testing.T) {
@@ -101,6 +105,10 @@ func TestList(t *testing.T) {
 				l.Remove(lItem)
 			}
 		})
+
+		require.Nil(t, l.Front())
+		require.Nil(t, l.Back())
+		require.Equal(t, l.Len(), 0)
 	})
 
 	t.Run("deleting an element from the beginning added to the end", func(t *testing.T) {

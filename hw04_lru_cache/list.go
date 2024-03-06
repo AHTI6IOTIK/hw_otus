@@ -73,8 +73,15 @@ func (l *list) PushBack(v interface{}) *ListItem {
 func (l *list) Remove(i *ListItem) {
 	switch i {
 	case l.head:
+		if i.Next != nil {
+			i.Next.Prev = nil
+		}
+
 		l.head = i.Next
 	case l.tail:
+		if i.Prev != nil {
+			i.Prev.Next = nil
+		}
 		l.tail = i.Prev
 	default:
 		prevItem := i.Prev
@@ -85,6 +92,9 @@ func (l *list) Remove(i *ListItem) {
 	}
 
 	l.size--
+	if l.size == 0 {
+		l.tail = nil
+	}
 }
 
 // MoveToFront переместит элемент в начало.
