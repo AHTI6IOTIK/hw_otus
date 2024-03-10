@@ -37,8 +37,10 @@ func Run(tasks []Task, n, m int) error {
 
 		taskChan <- t
 	}
+
 	close(taskChan)
 	wg.Wait()
+	close(errChan)
 
 	if isErrorsExceed {
 		return ErrErrorsLimitExceeded
