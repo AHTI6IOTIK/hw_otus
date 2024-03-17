@@ -1,7 +1,6 @@
 package hw06pipelineexecution
 
 import (
-	"fmt"
 	"runtime"
 	"sync"
 )
@@ -54,15 +53,12 @@ func produce(done, in In, inner Bi, wg *sync.WaitGroup) {
 	for v := range in {
 		select {
 		case <-done:
-			fmt.Println("coco1")
 			return
 		default:
 		}
 
 		select {
 		case <-done:
-			fmt.Println("coco2")
-
 			return
 		case inner <- v:
 		}
