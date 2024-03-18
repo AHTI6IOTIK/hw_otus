@@ -17,15 +17,13 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 
 			go func() {
 				defer close(inner)
-				for v := range in {
+				for {
 					select {
-					case <-done:
-						return
-					default:
-					}
-
-					select {
-					case inner <- v:
+					case v, ok := <-in:
+						if !ok {
+							return
+						}
+						inner <- v
 					case <-done:
 						return
 					}
