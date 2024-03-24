@@ -23,7 +23,11 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 						if !ok {
 							return
 						}
-						inner <- v
+
+						select {
+						case inner <- v:
+						default:
+						}
 					case <-done:
 						return
 					}
