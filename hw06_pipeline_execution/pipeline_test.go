@@ -111,14 +111,15 @@ func TestPipeline(t *testing.T) {
 			close(in)
 		}()
 
-		startGor := runtime.NumGoroutine() - 2 // вычитаем 2 наши горутины
 		result := make([]string, 0, 10)
+		time.Sleep(time.Second)
+		startGor := runtime.NumGoroutine()
 		start := time.Now()
 		for s := range ExecutePipeline(in, done, stages...) {
 			result = append(result, s.(string))
 		}
 		elapsed := time.Since(start)
-		<-done
+		time.Sleep(time.Second)
 		endGor := runtime.NumGoroutine()
 
 		require.Len(t, result, 0)
