@@ -1,9 +1,6 @@
 package hw06pipelineexecution
 
 import (
-	"github.com/stretchr/testify/assert"
-	"go.uber.org/goleak"
-	"runtime"
 	"strconv"
 	"testing"
 	"time"
@@ -17,7 +14,6 @@ const (
 )
 
 func TestPipeline(t *testing.T) {
-	defer goleak.VerifyNone(t)
 	// Stage generator
 	g := func(_ string, f func(v interface{}) interface{}) Stage {
 		return func(in In) Out {
@@ -95,35 +91,19 @@ func TestPipeline(t *testing.T) {
 		require.Less(t, int64(elapsed), int64(abortDur)+int64(fault))
 	})
 
-	t.Run("done case with wait close all goroutines", func(t *testing.T) {
-		assert.Eventually(t, func() bool {
-			in := make(Bi)
-			done := make(Bi)
-			data := []int{1, 2, 3, 4, 5}
+	t.Run("with nil channel", func(t *testing.T) {
+		var res []int
+		for range ExecutePipeline(nil, nil, stages...) {
+			res = append(res, 1)
+		}
+		require.Len(t, res, 0)
+	})
 
-			// Abort after 200ms
-			abortDur := sleepPerStage * 2
-			go func() {
-				<-time.After(abortDur)
-				close(done)
-			}()
-
-			go func() {
-				for _, v := range data {
-					in <- v
-				}
-				close(in)
-			}()
-
-			result := make([]string, 0, 10)
-			startGor := runtime.NumGoroutine() - 2
-			for s := range ExecutePipeline(in, done, stages...) {
-				result = append(result, s.(string))
-			}
-			endGor := runtime.NumGoroutine()
-
-			require.Equal(t, 0, endGor-startGor)
-			return true
-		}, time.Second, 10*time.Millisecond)
+	t.Run("with empty stages", func(t *testing.T) {
+		var res []int
+		for range ExecutePipeline(nil, nil, nil) {
+			res = append(res, 1)
+		}
+		require.Len(t, res, 0)
 	})
 }

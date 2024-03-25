@@ -23,7 +23,7 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 			go func() {
 				defer func() {
 					close(inner)
-					for range in {
+					for range in { // ожидаем завершения предыдущего обработчика стейджа
 					}
 				}()
 				for v := range in {
