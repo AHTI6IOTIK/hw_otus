@@ -1,9 +1,9 @@
 module github.com/AHTI6IOTIK/hw_otus/hw06_pipeline_execution
 
-go 1.19
+go 1.21.3
 
 require (
-	github.com/stretchr/testify v1.8.0
+	github.com/stretchr/testify v1.9.0
 	go.uber.org/goleak v1.3.0
 )
 
