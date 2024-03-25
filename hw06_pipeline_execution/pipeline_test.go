@@ -1,7 +1,6 @@
 package hw06pipelineexecution
 
 import (
-	"fmt"
 	"strconv"
 	"testing"
 	"time"
@@ -23,8 +22,6 @@ func TestPipeline(t *testing.T) {
 			out := make(Bi)
 			go func() {
 				defer close(out)
-				defer fmt.Println("end", i)
-				fmt.Println("start", i)
 				for v := range in {
 					time.Sleep(sleepPerStage)
 					out <- f(v)
