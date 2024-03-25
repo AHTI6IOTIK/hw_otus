@@ -17,7 +17,7 @@ const (
 func TestPipeline(t *testing.T) {
 	goleak.VerifyNone(t)
 	// Stage generator
-	g := func(i string, f func(v interface{}) interface{}) Stage {
+	g := func(_ string, f func(v interface{}) interface{}) Stage {
 		return func(in In) Out {
 			out := make(Bi)
 			go func() {
