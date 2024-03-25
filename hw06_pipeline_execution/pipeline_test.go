@@ -1,6 +1,7 @@
 package hw06pipelineexecution
 
 import (
+	"go.uber.org/goleak"
 	"runtime"
 	"strconv"
 	"testing"
@@ -15,6 +16,7 @@ const (
 )
 
 func TestPipeline(t *testing.T) {
+	defer goleak.VerifyNone(t)
 	// Stage generator
 	g := func(_ string, f func(v interface{}) interface{}) Stage {
 		return func(in In) Out {

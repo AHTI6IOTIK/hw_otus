@@ -15,7 +15,11 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 			inner := make(Bi)
 
 			go func() {
-				defer close(inner)
+				defer func() {
+					close(inner)
+					for range in {
+					}
+				}()
 				for v := range in {
 					select {
 					case <-done:
