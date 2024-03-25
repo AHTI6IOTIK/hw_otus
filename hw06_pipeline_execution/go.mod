@@ -1,6 +1,6 @@
 module github.com/AHTI6IOTIK/hw_otus/hw06_pipeline_execution
 
-go 1.21.3
+go 1.19
 
 require github.com/stretchr/testify v1.9.0
 
