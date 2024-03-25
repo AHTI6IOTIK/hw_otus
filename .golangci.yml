@@ -17,6 +17,7 @@ linters-settings:
         allow:
           - $gostd
           - github.com/ozgio/strutil
+          - go.uber.org/goleak
 
 issues:
   exclude-rules:
