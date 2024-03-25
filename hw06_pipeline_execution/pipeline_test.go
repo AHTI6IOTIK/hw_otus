@@ -1,11 +1,13 @@
 package hw06pipelineexecution
 
 import (
+	"fmt"
 	"strconv"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/require"
+	"go.uber.org/goleak"
 )
 
 const (
@@ -14,12 +16,15 @@ const (
 )
 
 func TestPipeline(t *testing.T) {
+	goleak.VerifyNone(t)
 	// Stage generator
-	g := func(_ string, f func(v interface{}) interface{}) Stage {
+	g := func(i string, f func(v interface{}) interface{}) Stage {
 		return func(in In) Out {
 			out := make(Bi)
 			go func() {
 				defer close(out)
+				defer fmt.Println("end", i)
+				fmt.Println("start", i)
 				for v := range in {
 					time.Sleep(sleepPerStage)
 					out <- f(v)
