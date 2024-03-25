@@ -16,25 +16,25 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 	}
 
 	out := in
+
 	for _, s := range stages {
 		out = func(in In) Out {
 			inner := make(Bi)
 
 			go func() {
-				defer func() {
-					close(inner)
-					for range in { // ожидаем завершения предыдущего обработчика стейджа
-					}
-				}()
-				for v := range in {
+				defer close(inner)
+				for {
 					select {
-					case <-done:
-						return
-					default:
-					}
+					case v, ok := <-in:
+						if !ok {
+							return
+						}
 
-					select {
-					case inner <- v:
+						select {
+						case <-done:
+							return
+						case inner <- v:
+						}
 					case <-done:
 						return
 					}
