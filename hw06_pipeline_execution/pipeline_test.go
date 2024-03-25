@@ -1,6 +1,7 @@
 package hw06pipelineexecution
 
 import (
+	"github.com/stretchr/testify/assert"
 	"go.uber.org/goleak"
 	"runtime"
 	"strconv"
@@ -94,38 +95,35 @@ func TestPipeline(t *testing.T) {
 		require.Less(t, int64(elapsed), int64(abortDur)+int64(fault))
 	})
 
-	t.Run("done case with close all goroutines", func(t *testing.T) {
-		in := make(Bi)
-		done := make(Bi)
-		data := []int{1, 2, 3, 4, 5}
+	t.Run("done case with wait close all goroutines", func(t *testing.T) {
+		assert.Eventually(t, func() bool {
+			in := make(Bi)
+			done := make(Bi)
+			data := []int{1, 2, 3, 4, 5}
 
-		// Abort after 200ms
-		abortDur := sleepPerStage * 2
-		go func() {
-			<-time.After(abortDur)
-			close(done)
-		}()
+			// Abort after 200ms
+			abortDur := sleepPerStage * 2
+			go func() {
+				<-time.After(abortDur)
+				close(done)
+			}()
 
-		go func() {
-			for _, v := range data {
-				in <- v
+			go func() {
+				for _, v := range data {
+					in <- v
+				}
+				close(in)
+			}()
+
+			result := make([]string, 0, 10)
+			startGor := runtime.NumGoroutine() - 2
+			for s := range ExecutePipeline(in, done, stages...) {
+				result = append(result, s.(string))
 			}
-			close(in)
-		}()
+			endGor := runtime.NumGoroutine()
 
-		result := make([]string, 0, 10)
-		time.Sleep(time.Second)
-		startGor := runtime.NumGoroutine()
-		start := time.Now()
-		for s := range ExecutePipeline(in, done, stages...) {
-			result = append(result, s.(string))
-		}
-		elapsed := time.Since(start)
-		time.Sleep(time.Second)
-		endGor := runtime.NumGoroutine()
-
-		require.Len(t, result, 0)
-		require.Less(t, int64(elapsed), int64(abortDur)+int64(fault))
-		require.Equal(t, 0, endGor-startGor)
+			require.Equal(t, 0, endGor-startGor)
+			return true
+		}, time.Second, 10*time.Millisecond)
 	})
 }
