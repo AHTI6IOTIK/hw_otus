@@ -1,7 +1,6 @@
 package file
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -43,7 +42,7 @@ func (p *ProcessFile) Close() {
 	err := p.file.Close()
 
 	if p.Err != nil {
-		p.Err = errors.Join(p.Err, err)
+		p.Err = fmt.Errorf("%w: %v", p.Err, err)
 	} else {
 		p.Err = err
 	}
