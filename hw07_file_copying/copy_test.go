@@ -1,10 +1,11 @@
 package main
 
 import (
+	"testing"
+
 	"github.com/AHTI6IOTIK/hw_otus/hw07_file_copying/file"
 	"github.com/AHTI6IOTIK/hw_otus/hw07_file_copying/mocks"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestCopy(t *testing.T) {

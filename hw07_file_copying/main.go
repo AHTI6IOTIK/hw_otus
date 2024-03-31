@@ -4,8 +4,9 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/AHTI6IOTIK/hw_otus/hw07_file_copying/file"
 	"os"
+
+	"github.com/AHTI6IOTIK/hw_otus/hw07_file_copying/file"
 )
 
 type Conf struct {
