@@ -2,10 +2,11 @@ package main
 
 import (
 	"bytes"
-	"github.com/AHTI6IOTIK/hw_otus/hw07_file_copying/progressbar"
-	"github.com/stretchr/testify/require"
 	"io"
 	"testing"
+
+	"github.com/AHTI6IOTIK/hw_otus/hw07_file_copying/progressbar"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewProgressBar(t *testing.T) {
@@ -46,6 +47,7 @@ func TestNewProgressBar(t *testing.T) {
 			args:    args{width: 10, out: &bytes.Buffer{}, size: 50},
 			wantOut: "\r[#         ] 10%",
 			prepare: func(t *testing.T, pb *progressbar.ProgressBar) {
+				t.Helper()
 				_, err := pb.Write([]byte{1, 2, 3, 4, 5})
 				if err != nil {
 					t.Error(err)
