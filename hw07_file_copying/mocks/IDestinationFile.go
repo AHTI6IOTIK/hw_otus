@@ -95,8 +95,21 @@ func (_c *IDestinationFile_Limit_Call) RunAndReturn(run func() int) *IDestinatio
 }
 
 // Remove provides a mock function with given fields:
-func (_m *IDestinationFile) Remove() {
-	_m.Called()
+func (_m *IDestinationFile) Remove() error {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Remove")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func() error); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // IDestinationFile_Remove_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Remove'
@@ -116,12 +129,12 @@ func (_c *IDestinationFile_Remove_Call) Run(run func()) *IDestinationFile_Remove
 	return _c
 }
 
-func (_c *IDestinationFile_Remove_Call) Return() *IDestinationFile_Remove_Call {
-	_c.Call.Return()
+func (_c *IDestinationFile_Remove_Call) Return(_a0 error) *IDestinationFile_Remove_Call {
+	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *IDestinationFile_Remove_Call) RunAndReturn(run func()) *IDestinationFile_Remove_Call {
+func (_c *IDestinationFile_Remove_Call) RunAndReturn(run func() error) *IDestinationFile_Remove_Call {
 	_c.Call.Return(run)
 	return _c
 }

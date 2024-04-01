@@ -3,8 +3,9 @@ package file
 import (
 	"errors"
 	"fmt"
+	"github.com/AHTI6IOTIK/hw_otus/hw07_file_copying/progressbar"
 	"io"
-	"strings"
+	"os"
 )
 
 var (
@@ -29,53 +30,19 @@ func Copy(
 		limit = fileSize
 	}
 
-	var err error
-	defer func(err error) {
-		if err != nil {
-			fmt.Printf("\r")
-		} else {
-			fmt.Println()
-		}
-	}(err)
-
-	p := make([]byte, limit)
-	offset := 0
-	for offset < limit {
-		n, err := src.Read(p)
-		offset += n
-
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			return err
-		}
+	pb, err := progressbar.NewProgressBar(50, os.Stdout)
+	if err != nil {
+		return fmt.Errorf("initialization progress bar: %w", err)
 	}
 
-	prg := progress(limit)
-	for i := 0; i < limit; i++ {
-		_, err := dst.Write(p[i : i+1])
-		if err != nil {
-			break
-		}
+	pb.Size(limit)
+	defer pb.Stop()
 
-		fmt.Print(prg(i + 1))
+	_, err = io.CopyN(io.MultiWriter(pb, dst), src, int64(limit))
+
+	if err != nil {
+		return fmt.Errorf("copy file: %w", err)
 	}
 
 	return nil
-}
-
-func progress(total int) func(step int) string {
-	const width = int(50)
-
-	return func(step int) string {
-		percent := step * 100 / total
-		current := width * percent / 100
-		var s strings.Builder
-
-		s.WriteString(strings.Repeat("#", current))
-		s.WriteString(strings.Repeat(" ", width-current))
-
-		return fmt.Sprintf("\r[%s] %d%v", s.String(), percent, "%")
-	}
 }

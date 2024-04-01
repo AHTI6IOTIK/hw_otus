@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -31,6 +30,9 @@ func main() {
 		os.O_RDONLY,
 		settings.offset,
 	)
+
+	defer srcFile.Close()
+
 	srcFile.Stat()
 	srcFile.CheckOffset()
 	if srcFile.Err != nil {
@@ -43,15 +45,17 @@ func main() {
 		os.O_RDWR|os.O_CREATE|os.O_TRUNC,
 		settings.limit,
 	)
+
+	defer dstFile.Close()
+
 	if dstFile.Err != nil {
-		err := dstFile.Err
+		dstErr := dstFile.Err
+		fmt.Print(dstErr)
 
-		dstFile.Remove()
-		if dstFile.Err != nil {
-			err = errors.Join(err, dstFile.Err)
+		rmErr := dstFile.Remove()
+		if rmErr != nil {
+			fmt.Print(" ", rmErr)
 		}
-
-		fmt.Println(err)
 
 		return
 	}

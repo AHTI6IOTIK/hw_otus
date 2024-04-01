@@ -3,6 +3,7 @@
 package file
 
 import (
+	"errors"
 	"io"
 	"os"
 )
@@ -10,7 +11,7 @@ import (
 type IDestinationFile interface {
 	Write(p []byte) (n int, err error)
 	Limit() int
-	Remove()
+	Remove() error
 	Close()
 }
 
@@ -38,8 +39,8 @@ func (d *DestinationFile) Write(p []byte) (n int, err error) {
 		return 0, d.Err
 	}
 
-	if d.limit != 0 && len(p) >= d.limit {
-		return d.limit, nil
+	if d.limit != 0 && len(p) > d.limit {
+		return d.file.Write(p[:d.limit])
 	}
 
 	return d.file.Write(p)
@@ -53,12 +54,12 @@ func (d *DestinationFile) Limit() int {
 	return d.limit
 }
 
-func (d *DestinationFile) Remove() {
-	if d.file == nil || d.Err != nil {
-		return
+func (d *DestinationFile) Remove() error {
+	if d.file == nil {
+		return errors.New("destination file is not load")
 	}
 
-	d.Err = os.Remove(d.file.Name())
+	return os.Remove(d.file.Name())
 }
 
 func (d *DestinationFile) Close() {
