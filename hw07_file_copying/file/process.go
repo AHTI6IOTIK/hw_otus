@@ -17,7 +17,7 @@ func NewProcessFile(
 	path string,
 	flg int,
 ) *ProcessFile {
-	file, err := os.OpenFile(path, flg, 0644)
+	file, err := os.OpenFile(path, flg, 0o644)
 
 	return &ProcessFile{
 		file: file,
@@ -31,7 +31,7 @@ func (p *ProcessFile) Stat() {
 	}
 	fileInfo, err := p.file.Stat()
 	if err != nil {
-		p.Err = fmt.Errorf("%v: %v", ErrStatFile, err)
+		p.Err = fmt.Errorf("%w: %w", ErrStatFile, err)
 		return
 	}
 
@@ -42,7 +42,7 @@ func (p *ProcessFile) Close() {
 	err := p.file.Close()
 
 	if p.Err != nil {
-		p.Err = fmt.Errorf("%w: %v", p.Err, err)
+		p.Err = fmt.Errorf("%w: %w", p.Err, err)
 	} else {
 		p.Err = err
 	}

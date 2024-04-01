@@ -3,14 +3,13 @@ package file
 import (
 	"errors"
 	"fmt"
-	"github.com/AHTI6IOTIK/hw_otus/hw07_file_copying/progressbar"
 	"io"
 	"os"
+
+	"github.com/AHTI6IOTIK/hw_otus/hw07_file_copying/progressbar"
 )
 
-var (
-	ErrUnsupportedFile = errors.New("unsupported file")
-)
+var ErrUnsupportedFile = errors.New("unsupported file")
 
 func Copy(
 	src ISourceFile,
@@ -39,7 +38,6 @@ func Copy(
 	defer pb.Stop()
 
 	_, err = io.CopyN(io.MultiWriter(pb, dst), src, int64(limit))
-
 	if err != nil {
 		return fmt.Errorf("copy file: %w", err)
 	}
