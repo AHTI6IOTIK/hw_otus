@@ -18,6 +18,7 @@ linters-settings:
           - $gostd
           - github.com/ozgio/strutil
           - go.uber.org/goleak
+          - github.com/AHTI6IOTIK/hw_otus/hw07_file_copying
 
 issues:
   exclude-rules:
