@@ -73,6 +73,8 @@ func ReadDir(dir string) (Environment, error) {
 			Value:      strings.TrimRight(value, " "),
 			NeedRemove: isRemove,
 		}
+
+		isRemove = false
 	}
 
 	return result, nil
