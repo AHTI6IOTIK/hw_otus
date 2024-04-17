@@ -7,6 +7,8 @@ import (
 	"github.com/AHTI6IOTIK/hw_otus/hw08_envdir_tool/arguments"
 	"log"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 var (
@@ -30,10 +32,19 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	exitCode := RunCmd(
-		args.FullCommand(),
-		env,
-	)
+	var exitCode int
+	quit := make(chan os.Signal)
+
+	go func() {
+		exitCode = RunCmd(
+			args.FullCommand(),
+			env,
+		)
+		quit <- syscall.SIGINT
+	}()
+
+	signal.Notify(quit, syscall.SIGINT)
+	<-quit
 
 	os.Exit(exitCode)
 }

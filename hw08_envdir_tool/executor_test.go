@@ -1,7 +1,14 @@
 package main
 
-import "testing"
+import (
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
 
-func TestRunCmd(t *testing.T) {
-	// Place your code here
+func TestRunCmdQuit(t *testing.T) {
+	args := make([]string, 0, 1)
+	envs := make(Environment)
+	actual := RunCmd(args, envs)
+
+	assert.Equal(t, InvalidCmdArgs, actual)
 }
