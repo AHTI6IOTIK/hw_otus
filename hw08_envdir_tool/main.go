@@ -4,11 +4,12 @@ Copyright © 2024 Pavel Sidorov <p.sidorov.dev@gmail.com>
 package main
 
 import (
-	"github.com/AHTI6IOTIK/hw_otus/hw08_envdir_tool/arguments"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/AHTI6IOTIK/hw_otus/hw08_envdir_tool/arguments"
 )
 
 var (
@@ -33,7 +34,7 @@ func main() {
 	}
 
 	var exitCode int
-	quit := make(chan os.Signal)
+	quit := make(chan os.Signal, 1)
 
 	go func() {
 		exitCode = RunCmd(

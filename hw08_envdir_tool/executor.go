@@ -18,6 +18,7 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 		return InvalidCmdArgs
 	}
 
+	//nolint:gosec
 	command := exec.Command(cmd[0], cmd[1:]...)
 
 	command.Stdin = os.Stdin
@@ -28,14 +29,14 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 		if vr.NeedRemove {
 			err := os.Unsetenv(key)
 			if err != nil {
-
+				log.Println(err)
 			}
 			continue
 		}
 
 		err := os.Setenv(key, vr.Value)
 		if err != nil {
-
+			log.Println(err)
 		}
 	}
 

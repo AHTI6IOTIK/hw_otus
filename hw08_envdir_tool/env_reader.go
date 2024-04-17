@@ -40,7 +40,7 @@ func ReadDir(dir string) (Environment, error) {
 	var filePath, value string
 	var fileData []byte
 	var isRemove bool
-	var result = make(Environment)
+	result := make(Environment)
 
 	for _, entry := range entries {
 		filePath = fmt.Sprintf(
@@ -73,9 +73,6 @@ func ReadDir(dir string) (Environment, error) {
 			Value:      strings.TrimRight(value, " "),
 			NeedRemove: isRemove,
 		}
-
-		value = ""
-		isRemove = false
 	}
 
 	return result, nil

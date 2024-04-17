@@ -3,9 +3,10 @@ package main
 import (
 	"crypto/rand"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSimpleReadDirFails(t *testing.T) {
@@ -27,6 +28,7 @@ func TestSimpleReadDirFails(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -85,6 +87,7 @@ func TestEnvironmentReadDir(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -100,7 +103,6 @@ func TestEnvironmentReadDir(t *testing.T) {
 			assert.NoError(t, err)
 
 			assert.Equal(t, *tc.wantEnvs, resultEnvs)
-
 		})
 	}
 }

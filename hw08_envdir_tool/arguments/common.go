@@ -5,15 +5,12 @@ import (
 	"fmt"
 )
 
-var (
-	invalidParamsTemplate = "%s cannot be options, received: %s"
-)
+var invalidParamsTemplate = "%s cannot be options, received: %s"
 
 type Args struct {
 	envDir    string
 	command   string
 	arguments []string
-	verbose   bool
 	help      bool
 }
 
@@ -43,22 +40,18 @@ func isValid(args []string) error {
 	}
 
 	if args[0][0] == '-' {
-		return errors.New(
-			fmt.Sprintf(
-				invalidParamsTemplate,
-				ArgsDescription.EnvDir.GetName(true),
-				args[0],
-			),
+		return fmt.Errorf(
+			invalidParamsTemplate,
+			ArgsDescription.EnvDir.GetName(true),
+			args[0],
 		)
 	}
 
 	if args[1][0] == '-' {
-		return errors.New(
-			fmt.Sprintf(
-				invalidParamsTemplate,
-				ArgsDescription.Command.GetName(true),
-				args[1],
-			),
+		return fmt.Errorf(
+			invalidParamsTemplate,
+			ArgsDescription.Command.GetName(true),
+			args[1],
 		)
 	}
 

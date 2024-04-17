@@ -22,7 +22,6 @@ var ArgsDescription = struct {
 	EnvDir    argDesc
 	Command   argDesc
 	Arguments argDesc
-	Verbose   argDesc
 	Help      argDesc
 }{
 	EnvDir: argDesc{
@@ -36,10 +35,6 @@ var ArgsDescription = struct {
 	Arguments: argDesc{
 		Name: "command arguments",
 		Desc: "arguments for the program being executed",
-	},
-	Verbose: argDesc{
-		Name: "-vv",
-		Desc: "verbose mode",
 	},
 	Help: argDesc{
 		Name: "-h | help",
@@ -60,6 +55,5 @@ func PrintHelp(name, version string) {
 	log.Printf("\t[%s] %s\n", ArgsDescription.EnvDir.Name, ArgsDescription.EnvDir.Desc)
 	log.Printf("\t[%s] %s\n", ArgsDescription.Command.Name, ArgsDescription.Command.Desc)
 	log.Printf("\t[%s] %s\n", ArgsDescription.Arguments.Name, ArgsDescription.Arguments.Desc)
-	log.Printf("\t[%s] %s\n", ArgsDescription.Verbose.Name, ArgsDescription.Verbose.Desc)
 	log.Printf("\t%s %s\n\n", ArgsDescription.Help.GetName(true), ArgsDescription.Help.Desc)
 }
