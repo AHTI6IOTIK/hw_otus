@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"slices"
 	"strings"
 )
 
@@ -54,12 +53,12 @@ func ReadDir(dir string) (Environment, error) {
 			return nil, fmt.Errorf("read envfile: %s | %w", entry.Name(), err)
 		}
 
-		lfIndex := slices.Index(fileData, lfByte)
+		lfIndex := findIndex(fileData, lfByte)
 		if lfIndex > 0 {
 			fileData = fileData[:lfIndex]
 		}
 
-		nulIndex := slices.Index(fileData, nulByte)
+		nulIndex := findIndex(fileData, nulByte)
 		if nulIndex > 0 {
 			fileData[nulIndex] = lfByte
 		}
@@ -78,4 +77,13 @@ func ReadDir(dir string) (Environment, error) {
 	}
 
 	return result, nil
+}
+
+func findIndex(data []byte, b int) int {
+	for i, item := range data {
+		if item == byte(b) {
+			return i
+		}
+	}
+	return 0
 }
