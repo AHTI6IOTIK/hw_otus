@@ -26,15 +26,16 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 	command.Stderr = os.Stderr
 
 	for key, vr := range env {
+		err := os.Unsetenv(key)
+		if err != nil {
+			log.Println(err)
+		}
+
 		if vr.NeedRemove {
-			err := os.Unsetenv(key)
-			if err != nil {
-				log.Println(err)
-			}
 			continue
 		}
 
-		err := os.Setenv(key, vr.Value)
+		err = os.Setenv(key, vr.Value)
 		if err != nil {
 			log.Println(err)
 		}

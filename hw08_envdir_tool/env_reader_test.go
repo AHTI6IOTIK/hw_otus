@@ -55,7 +55,7 @@ func TestEnvironmentReadDir(t *testing.T) {
 				},
 				"BUZZ": EnvValue{
 					Value:      "",
-					NeedRemove: true,
+					NeedRemove: true, // true потому что в prepare в файл пишем значение как есть
 				},
 				"CHANGE": EnvValue{
 					Value:      "CHANGE",
@@ -81,6 +81,67 @@ func TestEnvironmentReadDir(t *testing.T) {
 						t.Error(err)
 						return
 					}
+				}
+			},
+		},
+		{
+			name: "Тест_обрезки_крайних_пробелов_и_табуляции",
+			wantEnvs: &Environment{
+				"FOO": EnvValue{
+					Value:      "BAR",
+					NeedRemove: false,
+				},
+				"BUZZ": EnvValue{
+					Value:      "",
+					NeedRemove: false, // true потому что в prepare в файл пишем значение как есть + nbsb + \t
+				},
+				"CHANGE": EnvValue{
+					Value:      "CHANGE",
+					NeedRemove: false,
+				},
+			},
+			prepare: func(dir string, envs *Environment) {
+				err := os.Mkdir(dir, os.ModePerm)
+				if err != nil {
+					t.Error(err)
+					return
+				}
+
+				for key, env := range *envs {
+					file, err := os.Create(fmt.Sprintf("%s/%s", dir, key))
+					if err != nil {
+						t.Error(err)
+						return
+					}
+
+					_, err = file.WriteString(env.Value + "     \t")
+					if err != nil {
+						t.Error(err)
+						return
+					}
+				}
+			},
+		},
+		{
+			name:     "Тест_пропуска_файла_с_=",
+			wantEnvs: &Environment{},
+			prepare: func(dir string, envs *Environment) {
+				err := os.Mkdir(dir, os.ModePerm)
+				if err != nil {
+					t.Error(err)
+					return
+				}
+
+				file, err := os.Create(fmt.Sprintf("%s/%s", dir, "test=item"))
+				if err != nil {
+					t.Error(err)
+					return
+				}
+
+				_, err = file.WriteString("     \t")
+				if err != nil {
+					t.Error(err)
+					return
 				}
 			},
 		},

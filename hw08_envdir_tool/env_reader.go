@@ -42,6 +42,10 @@ func ReadDir(dir string) (Environment, error) {
 	result := make(Environment)
 
 	for _, entry := range entries {
+		if strings.Contains(entry.Name(), "=") {
+			continue
+		}
+
 		filePath = fmt.Sprintf(
 			"%s/%s",
 			dir,
@@ -68,8 +72,9 @@ func ReadDir(dir string) (Environment, error) {
 			isRemove = true
 		}
 
+		value = strings.TrimRight(strings.TrimRight(value, "\t"), " ")
 		result[entry.Name()] = EnvValue{
-			Value:      strings.TrimRight(value, " "),
+			Value:      value,
 			NeedRemove: isRemove,
 		}
 
