@@ -16,6 +16,7 @@ linters-settings:
           - "!$test"
         allow:
           - $gostd
+          - golang.org/x/exp
           - github.com/ozgio/strutil
           - go.uber.org/goleak
           - github.com/AHTI6IOTIK/hw_otus
