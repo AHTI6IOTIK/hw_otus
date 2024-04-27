@@ -168,7 +168,7 @@ func TestValidate(t *testing.T) {
 
 			err := Validate(tt.in)
 			if tt.expectedErr != nil {
-				cErr, ok := err.(*ValidationErrors) //nolint:errorlint
+				cErr, ok := err.(*ValidationErrors) //nolint:errorlint,nolintlint
 				if !ok {
 					t.Errorf("actual = %v, is fail cast to ValidationErrors", err)
 				}

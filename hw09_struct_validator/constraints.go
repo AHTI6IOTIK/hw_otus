@@ -48,7 +48,7 @@ func (c *ConstraintWrapper[T]) Error() error {
 		if result == nil {
 			result = c2.Error()
 		} else {
-			result = fmt.Errorf("%w | %v", result, c2.Error()) //nolint:errorlint
+			result = fmt.Errorf("%w | %v", result, c2.Error()) //nolint:errorlint,nolintlint
 		}
 	}
 
