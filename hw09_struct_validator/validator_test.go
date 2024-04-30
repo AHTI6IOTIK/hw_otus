@@ -2,6 +2,7 @@ package hw09structvalidator
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"testing"
 )
@@ -17,7 +18,7 @@ type (
 		Email  string          `validate:"regexp:^\\w+@\\w+\\.\\w+$"`
 		Role   UserRole        `validate:"in:admin,stuff"`
 		Phones []string        `validate:"len:11"`
-		meta   json.RawMessage //nolint:unused
+		meta   json.RawMessage //nolint:nolintlint,unused
 	}
 
 	App struct {
@@ -37,15 +38,127 @@ type (
 )
 
 func TestValidate(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		in          interface{}
 		expectedErr error
 	}{
 		{
-			// Place your code here.
+			in: User{
+				ID:     "236a2eda-990b-40e1-be94-2b8f1514e6a1",
+				Name:   "",
+				Age:    50,
+				Email:  "sss@ss.ss",
+				Role:   "stuff",
+				Phones: []string{"11122233344"},
+				meta:   nil,
+			},
+			expectedErr: nil,
 		},
-		// ...
-		// Place your code here.
+		{
+			in: User{
+				ID:     "",
+				Name:   "",
+				Age:    50,
+				Email:  "sss@ss.ss",
+				Role:   "stuff",
+				Phones: []string{"11122233344"},
+				meta:   nil,
+			},
+			expectedErr: ErrLen,
+		},
+		{
+			in: User{
+				ID:     "236a2eda-990b-40e1-be94-2b8f1514e6a1",
+				Name:   "",
+				Age:    50,
+				Email:  "",
+				Role:   "stuff",
+				Phones: []string{"11122233344"},
+				meta:   nil,
+			},
+			expectedErr: ErrRegexp,
+		},
+		{
+			in: User{
+				ID:     "236a2eda-990b-40e1-be94-2b8f1514e6a1",
+				Name:   "",
+				Age:    50,
+				Email:  "sss@ss.ss",
+				Role:   "stuff",
+				Phones: []string{"32"},
+				meta:   nil,
+			},
+			expectedErr: ErrLen,
+		},
+		{
+			in: User{
+				ID:     "236a2eda-990b-40e1-be94-2b8f1514e6a1",
+				Name:   "",
+				Age:    1000,
+				Email:  "sss@ss.ss",
+				Role:   "stuff",
+				Phones: []string{"11122233344"},
+				meta:   nil,
+			},
+			expectedErr: ErrNumber,
+		},
+		{
+			in: User{
+				ID:     "236a2eda-990b-40e1-be94-2b8f1514e6a1",
+				Name:   "",
+				Age:    50,
+				Email:  "sss@ss.ss",
+				Role:   "test",
+				Phones: []string{"11122233344"},
+				meta:   nil,
+			},
+			expectedErr: ErrList,
+		},
+		{
+			in: App{
+				Version: "123",
+			},
+			expectedErr: ErrLen,
+		},
+		{
+			in: App{
+				Version: "",
+			},
+			expectedErr: ErrLen,
+		},
+		{
+			in: Token{
+				Header:    nil,
+				Payload:   nil,
+				Signature: nil,
+			},
+			expectedErr: nil,
+		},
+		{
+			in: Response{
+				Code: 12,
+			},
+			expectedErr: ErrNumberList,
+		},
+		{
+			in: Response{
+				Code: 200,
+			},
+			expectedErr: nil,
+		},
+		{
+			in: Response{
+				Code: 404,
+			},
+			expectedErr: nil,
+		},
+		{
+			in: Response{
+				Code: 500,
+			},
+			expectedErr: nil,
+		},
 	}
 
 	for i, tt := range tests {
@@ -53,8 +166,21 @@ func TestValidate(t *testing.T) {
 			tt := tt
 			t.Parallel()
 
-			// Place your code here.
-			_ = tt
+			err := Validate(tt.in)
+			if tt.expectedErr != nil {
+				cErr, ok := err.(*ValidationErrors) //nolint:errorlint,nolintlint
+				if !ok {
+					t.Errorf("actual = %v, is fail cast to ValidationErrors", err)
+				}
+
+				for _, validationError := range *cErr {
+					if !errors.Is(validationError, tt.expectedErr) {
+						t.Errorf("actual = %v, want = %v", err, tt.expectedErr)
+					}
+				}
+			} else if err != nil {
+				t.Errorf("the error was not expected, actual = %v", err)
+			}
 		})
 	}
 }
