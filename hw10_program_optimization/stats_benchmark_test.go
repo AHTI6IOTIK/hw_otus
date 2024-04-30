@@ -2,8 +2,9 @@ package hw10programoptimization
 
 import (
 	"archive/zip"
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func Benchmark_GetDomainStat(b *testing.B) {

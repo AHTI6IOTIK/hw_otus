@@ -2,9 +2,10 @@ package hw10programoptimization
 
 import (
 	"bufio"
-	jsoniter "github.com/json-iterator/go"
 	"io"
 	"strings"
+
+	jsoniter "github.com/json-iterator/go"
 )
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
