@@ -30,6 +30,7 @@ issues:
         - dupl
         - gocyclo
         - gosec
+        - lll
 
 linters:
   disable-all: true
