@@ -11,13 +11,13 @@ import (
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 type User struct {
-	ID       int
-	Name     string
-	Username string
-	Email    string
-	Phone    string
-	Password string
-	Address  string
+	ID       int    `json:"-"`
+	Name     string `json:"-"`
+	Username string `json:"-"`
+	Email    string `json:"Email"`
+	Phone    string `json:"-"`
+	Password string `json:"-"`
+	Address  string `json:"-"`
 }
 
 type DomainStat map[string]int
@@ -35,7 +35,7 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 			return nil, err
 		}
 
-		if strings.Contains(user.Email, domain) {
+		if strings.HasSuffix(user.Email, domain) && strings.Contains(user.Email, "@") {
 			emailDomain = strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])
 			result[emailDomain]++
 		}
