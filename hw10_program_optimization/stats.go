@@ -14,7 +14,7 @@ type User struct {
 	ID       int    `json:"-"`
 	Name     string `json:"-"`
 	Username string `json:"-"`
-	Email    string `json:"Email"`
+	Email    string `json:"email"`
 	Phone    string `json:"-"`
 	Password string `json:"-"`
 	Address  string `json:"-"`
