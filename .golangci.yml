@@ -21,6 +21,7 @@ linters-settings:
           - go.uber.org/goleak
           - github.com/AHTI6IOTIK/hw_otus
           - github.com/json-iterator/go
+          - github.com/spf13/cobra
 
 issues:
   exclude-rules:
