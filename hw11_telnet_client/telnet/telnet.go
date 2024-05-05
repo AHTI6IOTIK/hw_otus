@@ -82,7 +82,7 @@ func (c *client) Send() error {
 		return scanner.Err()
 	}
 
-	return io.EOF
+	return nil
 }
 
 func (c *client) Receive() error {
@@ -100,5 +100,5 @@ func (c *client) Receive() error {
 		return scanner.Err()
 	}
 
-	return ErrConnectionCloseByPear
+	return nil
 }

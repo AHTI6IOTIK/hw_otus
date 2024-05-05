@@ -26,4 +26,5 @@ func main() {
 	go cmd.Execute(ctx, quit)
 
 	<-quit
+	log.Println("process finished")
 }
