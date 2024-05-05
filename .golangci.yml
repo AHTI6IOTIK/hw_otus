@@ -20,6 +20,7 @@ linters-settings:
           - github.com/ozgio/strutil
           - go.uber.org/goleak
           - github.com/AHTI6IOTIK/hw_otus
+          - github.com/json-iterator/go
 
 issues:
   exclude-rules:
@@ -29,6 +30,7 @@ issues:
         - dupl
         - gocyclo
         - gosec
+        - lll
 
 linters:
   disable-all: true

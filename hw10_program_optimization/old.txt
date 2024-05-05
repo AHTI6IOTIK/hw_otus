@@ -1,0 +1,15 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/AHTI6IOTIK/hw_otus/hw10_program_optimization
+Benchmark_GetDomainStat-8   	       3	 356190125 ns/op	322186533 B/op	 3145414 allocs/op
+Benchmark_GetDomainStat-8   	       3	 355939139 ns/op	322198386 B/op	 3145413 allocs/op
+Benchmark_GetDomainStat-8   	       3	 358777653 ns/op	322285496 B/op	 3145423 allocs/op
+Benchmark_GetDomainStat-8   	       3	 355672903 ns/op	322235912 B/op	 3145418 allocs/op
+Benchmark_GetDomainStat-8   	       3	 353465528 ns/op	322199021 B/op	 3145416 allocs/op
+Benchmark_GetDomainStat-8   	       3	 354700097 ns/op	322173906 B/op	 3145412 allocs/op
+Benchmark_GetDomainStat-8   	       3	 354646611 ns/op	322185757 B/op	 3145410 allocs/op
+Benchmark_GetDomainStat-8   	       3	 354488889 ns/op	322223232 B/op	 3145416 allocs/op
+Benchmark_GetDomainStat-8   	       3	 356798153 ns/op	322247922 B/op	 3145417 allocs/op
+Benchmark_GetDomainStat-8   	       3	 357472542 ns/op	322210733 B/op	 3145414 allocs/op
+PASS
+ok  	github.com/AHTI6IOTIK/hw_otus/hw10_program_optimization	24.405s
