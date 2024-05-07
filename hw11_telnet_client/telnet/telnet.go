@@ -89,8 +89,7 @@ func (c *client) Receive() error {
 	scanner := bufio.NewScanner(c.conn)
 
 	for scanner.Scan() {
-		bbb := append(scanner.Bytes(), byte('\n'))
-		_, err := c.out.Write(bbb)
+		_, err := c.out.Write(append(scanner.Bytes(), byte('\n')))
 		if err != nil {
 			return err
 		}
