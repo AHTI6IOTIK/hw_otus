@@ -1,7 +1,8 @@
-package main
+package telnet
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"net"
 	"sync"
@@ -61,5 +62,31 @@ func TestTelnetClient(t *testing.T) {
 		}()
 
 		wg.Wait()
+	})
+
+	t.Run("check connection fail established", func(t *testing.T) {
+		in := &bytes.Buffer{}
+		out := &bytes.Buffer{}
+
+		timeout, err := time.ParseDuration("10s")
+		require.NoError(t, err)
+
+		client := NewTelnetClient("1.1.1.1", timeout, io.NopCloser(in), out)
+		err = client.Connect()
+
+		require.True(t, errors.Is(err, ErrConnectionFailEstablished))
+	})
+
+	t.Run("check close not established connection", func(t *testing.T) {
+		in := &bytes.Buffer{}
+		out := &bytes.Buffer{}
+
+		timeout, err := time.ParseDuration("10s")
+		require.NoError(t, err)
+
+		client := NewTelnetClient("1.1.1.1", timeout, io.NopCloser(in), out)
+		err = client.Close()
+
+		require.True(t, errors.Is(err, ErrConnectionNotEstablished))
 	})
 }
