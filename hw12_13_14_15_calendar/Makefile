@@ -26,8 +26,7 @@ test:
 	go test -race ./internal/... ./pkg/...
 
 install-lint-deps:
-	export GOROOT=$(shell go env GOROOT)
-	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.50.1
+	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.55.2
 
 deps-up:
 	COMPOSE_PROJECT_NAME="calendar" docker compose -f ./build/local/docker-compose.yml up -d --build
