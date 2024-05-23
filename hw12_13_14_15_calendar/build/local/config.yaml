@@ -1,6 +1,7 @@
 server:
-  hostname: localhost
+  host: localhost
   port: 8080
+  timeout: 3s
 logger:
   level: DEBUG
 storage:

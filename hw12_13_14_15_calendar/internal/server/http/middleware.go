@@ -6,12 +6,12 @@ import (
 	"time"
 )
 
-func loggingMiddleware(next http.Handler) http.Handler { //nolint:unused
+func loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		s := fmt.Sprintf(
 			"%s [%s] %s %s %s \"%s\"",
 			r.RemoteAddr,
-			time.Now().String(),
+			time.Now().Format(time.RFC3339),
 			r.Method,
 			r.URL.Path,
 			r.Proto,

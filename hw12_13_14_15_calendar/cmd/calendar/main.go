@@ -11,6 +11,7 @@ import (
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/app"
 	config2 "github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/config"
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/logger"
+	server2 "github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/server"
 	internalhttp "github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/server/http"
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/storage"
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/storage/database"
@@ -61,7 +62,7 @@ func main() {
 
 	calendar := app.New(logg, eventStorage)
 
-	server := internalhttp.NewServer(logg, calendar)
+	server := internalhttp.NewServer(logg, calendar, config.Server)
 
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
@@ -80,9 +81,16 @@ func main() {
 
 	logg.Info("calendar is running...")
 
+	handler := new(server2.Handler)
+	registerRoutes(server, handler)
+
 	if err := server.Start(ctx); err != nil {
 		logg.Error("failed to start http server: " + err.Error())
 		cancel()
 		os.Exit(1) //nolint:gocritic
 	}
+}
+
+func registerRoutes(srv *internalhttp.Server, handler *server2.Handler) {
+	srv.AddRoute("/hello", handler.Hello)
 }

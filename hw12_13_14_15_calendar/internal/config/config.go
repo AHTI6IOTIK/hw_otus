@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/validation"
 	"gopkg.in/yaml.v3"
@@ -17,8 +18,10 @@ type Config struct {
 }
 
 type ServerConf struct {
-	Hostname string `validate:"required"`
+	Host     string `validate:"required"`
 	Port     int    `validate:"required"`
+	Protocol string
+	Timeout  time.Duration
 }
 
 type StorageConf struct {
