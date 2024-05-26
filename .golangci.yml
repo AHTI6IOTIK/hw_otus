@@ -22,6 +22,10 @@ linters-settings:
           - github.com/AHTI6IOTIK/hw_otus
           - github.com/json-iterator/go
           - github.com/spf13/cobra
+          - github.com/jackc/pgx/v5/pgxpool
+          - github.com/go-playground/validator/v10
+          - gopkg.in/yaml.v3
+          - github.com/google/uuid
 
 issues:
   exclude-rules:

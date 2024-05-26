@@ -9,15 +9,21 @@ import (
 	"time"
 
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/app"
+	config2 "github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/config"
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/logger"
+	server2 "github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/server"
 	internalhttp "github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/server/http"
+	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/storage"
+	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/storage/database"
 	memorystorage "github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/storage/memory"
+	sqlstorage "github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/storage/sql"
+	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/pkg/shortcuts"
 )
 
 var configFile string
 
 func init() {
-	flag.StringVar(&configFile, "config", "/etc/calendar/config.toml", "Path to configuration file")
+	flag.StringVar(&configFile, "config", "./build/local/config.yaml", "Path to configuration file")
 }
 
 func main() {
@@ -28,13 +34,35 @@ func main() {
 		return
 	}
 
-	config := NewConfig()
-	logg := logger.New(config.Logger.Level)
+	ctx := context.Background()
 
-	storage := memorystorage.New()
-	calendar := app.New(logg, storage)
+	config, err := config2.NewConfig(configFile)
+	shortcuts.FatalIfErr(err)
 
-	server := internalhttp.NewServer(logg, calendar)
+	logg, err := logger.New(config.Logger.Level, os.Stdout)
+	shortcuts.FatalIfErr(err)
+
+	var eventStorage storage.IStorage
+	if config.Storage.InDatabase() {
+		db := database.New(&config.Database)
+		err := db.Connect(ctx)
+		shortcuts.FatalIfErr(err)
+
+		defer func() {
+			err := db.Connect(ctx)
+			if err != nil {
+				logg.Error(err)
+			}
+		}()
+
+		eventStorage = sqlstorage.NewEventStorage(db, logg)
+	} else {
+		eventStorage = memorystorage.New()
+	}
+
+	calendar := app.New(logg, eventStorage)
+
+	server := internalhttp.NewServer(logg, calendar, config.Server)
 
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
@@ -53,9 +81,16 @@ func main() {
 
 	logg.Info("calendar is running...")
 
+	handler := new(server2.Handler)
+	registerRoutes(server, handler)
+
 	if err := server.Start(ctx); err != nil {
 		logg.Error("failed to start http server: " + err.Error())
 		cancel()
 		os.Exit(1) //nolint:gocritic
 	}
+}
+
+func registerRoutes(srv *internalhttp.Server, handler *server2.Handler) {
+	srv.AddRoute("/hello", handler.Hello)
 }

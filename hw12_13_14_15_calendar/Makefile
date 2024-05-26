@@ -8,7 +8,7 @@ build:
 	go build -v -o $(BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
 
 run: build
-	$(BIN) -config ./configs/config.toml
+	$(BIN) -config ./build/config.yaml
 
 build-img:
 	docker build \
@@ -26,7 +26,24 @@ test:
 	go test -race ./internal/... ./pkg/...
 
 install-lint-deps:
-	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.50.1
+	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.55.2
+
+deps-up:
+	COMPOSE_PROJECT_NAME="calendar" docker compose -f ./build/local/docker-compose.yml up -d --build
+
+migrate-create:
+	if [[ -z "$(NAME)" ]]; then \
+		echo "No received param 'NAME'"; \
+	else \
+		migrate create -ext sql -dir build/app/migrations $(NAME); \
+	fi
+
+
+migrate-up:
+	migrate -database "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" -path build/app/migrations up
+
+migrate-down:
+	migrate -database "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" -path build/app/migrations down
 
 lint: install-lint-deps
 	golangci-lint run ./...
