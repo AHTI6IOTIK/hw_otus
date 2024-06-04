@@ -48,4 +48,7 @@ migrate-down:
 lint: install-lint-deps
 	golangci-lint run ./...
 
-.PHONY: build run build-img run-img version test lint
+generate:
+	protoc ./docs/protobuf/calendar.proto --go_out=. --go-grpc_out=.
+
+.PHONY: build run build-img run-img version test lint proto

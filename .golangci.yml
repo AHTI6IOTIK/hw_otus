@@ -26,6 +26,8 @@ linters-settings:
           - github.com/go-playground/validator/v10
           - gopkg.in/yaml.v3
           - github.com/google/uuid
+          - google.golang.org/protobuf
+          - google.golang.org/grpc
 
 issues:
   exclude-rules:

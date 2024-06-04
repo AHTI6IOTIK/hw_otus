@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -11,8 +12,11 @@ import (
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/app"
 	config2 "github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/config"
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/logger"
-	server2 "github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/server"
+	internalgrpc "github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/server/grpc"
+	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/server/grpc/grpchandler"
 	internalhttp "github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/server/http"
+	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/server/http/httphandler"
+	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/service"
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/storage"
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/storage/database"
 	memorystorage "github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/storage/memory"
@@ -44,53 +48,65 @@ func main() {
 
 	var eventStorage storage.IStorage
 	if config.Storage.InDatabase() {
-		db := database.New(&config.Database)
+		db := database.New(
+			&config.Database,
+			logg,
+		)
 		err := db.Connect(ctx)
 		shortcuts.FatalIfErr(err)
-
-		defer func() {
-			err := db.Connect(ctx)
-			if err != nil {
-				logg.Error(err)
-			}
-		}()
 
 		eventStorage = sqlstorage.NewEventStorage(db, logg)
 	} else {
 		eventStorage = memorystorage.New()
 	}
 
-	calendar := app.New(logg, eventStorage)
-
-	server := internalhttp.NewServer(logg, calendar, config.Server)
+	_ = app.New(logg, eventStorage)
 
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer cancel()
 
+	httpServer := internalhttp.NewHTTPServer(logg, config.Server.HTTP)
+	evtService := service.NewEventService(logg, eventStorage)
+
+	handlerHTTP := httphandler.NewHandler(logg, evtService)
+	httpServer.RegisterRoutes(handlerHTTP)
 	go func() {
-		<-ctx.Done()
-
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
-		defer cancel()
-
-		if err := server.Stop(ctx); err != nil {
-			logg.Error("failed to stop http server: " + err.Error())
+		logg.ServerLog(fmt.Sprintf("http server started on: %s", config.Server.HTTP.GetFullAddress()))
+		if err := httpServer.Start(ctx); err != nil {
+			logg.Error("failed to start http server: " + err.Error())
+			cancel()
+			return
 		}
 	}()
 
-	logg.Info("calendar is running...")
+	handlerGrpc := grpchandler.NewHandler(logg, evtService)
+	grpcServer := internalgrpc.NewRPCServer(
+		handlerGrpc,
+		logg,
+		config.Server.GRPC,
+	)
+	go func() {
+		logg.ServerLog(fmt.Sprintf("grpc server started on: %s", config.Server.GRPC.GetFullAddress()))
+		if err := grpcServer.Start(ctx); err != nil {
+			logg.Error("failed to start grpc server: " + err.Error())
+			cancel()
+			return
+		}
+	}()
 
-	handler := new(server2.Handler)
-	registerRoutes(server, handler)
+	logg.ServerLog("calendar is running...")
 
-	if err := server.Start(ctx); err != nil {
-		logg.Error("failed to start http server: " + err.Error())
-		cancel()
-		os.Exit(1) //nolint:gocritic
+	<-ctx.Done()
+
+	timeOutCtx, timeCancel := context.WithTimeout(context.Background(), time.Second*3)
+	defer timeCancel()
+
+	if err := httpServer.Stop(timeOutCtx); err != nil {
+		logg.Error("failed to stop http server: " + err.Error())
 	}
-}
 
-func registerRoutes(srv *internalhttp.Server, handler *server2.Handler) {
-	srv.AddRoute("/hello", handler.Hello)
+	if err := grpcServer.Stop(timeOutCtx); err != nil {
+		logg.Error("failed to stop grpc server: " + err.Error())
+	}
 }
