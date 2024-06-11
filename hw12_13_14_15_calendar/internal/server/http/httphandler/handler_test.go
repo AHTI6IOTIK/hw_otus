@@ -1,0 +1,254 @@
+package httphandler
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/logger"
+	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/server/http/dto"
+	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/service"
+	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/storage"
+	memorystorage "github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/storage/memory"
+	"github.com/stretchr/testify/assert"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+	"time"
+)
+
+func TestHandler_CreateEvent(t *testing.T) {
+	logBytes := make([]byte, 0, 1000)
+	bLog := bytes.NewBuffer(logBytes)
+
+	logg, err := logger.New("DEBUG", bLog)
+	assert.NoErrorf(t, err, "fail initialize logger")
+
+	stor := memorystorage.New()
+
+	s := service.NewEventService(logg, stor)
+	handl := NewHandler(logg, s)
+
+	ts := httptest.NewServer(http.HandlerFunc(handl.CreateEvent))
+	defer ts.Close()
+
+	reqBody := bytes.NewBufferString(`{
+		"title": "1122",
+		"description": "description",
+		"user_id": "f8e51dcd-f8fd-459c-81c3-2c873e40d747",
+		"remind_before": 1023,
+		"start_time": "2024-06-04T18:42:33.177Z",
+		"end_time": "2024-06-04T20:42:33.177Z"
+	}`)
+
+	res, err := http.Post(ts.URL, "application/json", reqBody)
+	assert.NoErrorf(t, err, "call handler")
+	assert.Equal(t, http.StatusOK, res.StatusCode)
+
+	defer res.Body.Close()
+	respBody, err := io.ReadAll(res.Body)
+	assert.NoErrorf(t, err, "read response body")
+
+	var result dto.CreateReply
+
+	err = json.Unmarshal(respBody, &result)
+	assert.NoError(t, err, "unmarshal response")
+	assert.True(t, result.ID != "")
+}
+
+func TestHandler_DeleteEvent(t *testing.T) {
+	logBytes := make([]byte, 0, 1000)
+	bLog := bytes.NewBuffer(logBytes)
+
+	logg, err := logger.New("DEBUG", bLog)
+	assert.NoErrorf(t, err, "fail initialize logger")
+
+	stor := memorystorage.New()
+	delEvent, err := stor.Add(&storage.Event{
+		Title:         "111",
+		StartDatetime: time.Time{},
+		EndDatetime:   time.Time{},
+		Description:   "",
+		UserID:        "",
+		RemindBefore:  0,
+	})
+	assert.NoErrorf(t, err, "create event storage")
+
+	s := service.NewEventService(logg, stor)
+	handl := NewHandler(logg, s)
+
+	srv := http.HandlerFunc(handl.DeleteEvent)
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(
+		http.MethodDelete,
+		fmt.Sprintf("/event/delete?event_id=%s", delEvent),
+		nil,
+	)
+	assert.NoErrorf(t, err, "create delete request")
+
+	srv.ServeHTTP(rec, req)
+
+	assert.Equal(t, http.StatusOK, rec.Result().StatusCode)
+}
+
+func TestHandler_GetEvent(t *testing.T) {
+	logBytes := make([]byte, 0, 1000)
+	bLog := bytes.NewBuffer(logBytes)
+
+	logg, err := logger.New("DEBUG", bLog)
+	assert.NoErrorf(t, err, "fail initialize logger")
+
+	stor := memorystorage.New()
+	getEvent, err := stor.Add(&storage.Event{
+		Title:         "111",
+		StartDatetime: time.Time{},
+		EndDatetime:   time.Time{},
+		Description:   "",
+		UserID:        "",
+		RemindBefore:  0,
+	})
+	assert.NoErrorf(t, err, "create event storage")
+
+	s := service.NewEventService(logg, stor)
+	handl := NewHandler(logg, s)
+
+	srv := http.HandlerFunc(handl.GetEvent)
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(
+		http.MethodGet,
+		fmt.Sprintf("/event?event_id=%s", getEvent),
+		nil,
+	)
+	assert.NoErrorf(t, err, "create get event request")
+
+	srv.ServeHTTP(rec, req)
+
+	assert.Equal(t, http.StatusOK, rec.Result().StatusCode)
+
+	var res storage.Event
+	err = json.Unmarshal(rec.Body.Bytes(), &res)
+	assert.NoErrorf(t, err, "unmarshal body")
+
+	assert.Equal(t, getEvent, res.ID)
+	assert.Equal(t, "111", res.Title)
+}
+
+func TestHandler_ListEvent(t *testing.T) {
+	logBytes := make([]byte, 0, 1000)
+	bLog := bytes.NewBuffer(logBytes)
+
+	logg, err := logger.New("DEBUG", bLog)
+	assert.NoErrorf(t, err, "fail initialize logger")
+
+	stor := memorystorage.New()
+	evt1, err := stor.Add(&storage.Event{
+		Title:         "111",
+		StartDatetime: time.Now(),
+		EndDatetime:   time.Time{},
+		Description:   "",
+		UserID:        "",
+		RemindBefore:  0,
+	})
+	assert.NoErrorf(t, err, "create event storage 1")
+
+	evt2, err := stor.Add(&storage.Event{
+		Title:         "222",
+		StartDatetime: time.Now(),
+		EndDatetime:   time.Time{},
+		Description:   "",
+		UserID:        "",
+		RemindBefore:  0,
+	})
+	assert.NoErrorf(t, err, "create event storage 2")
+
+	s := service.NewEventService(logg, stor)
+	handl := NewHandler(logg, s)
+
+	srv := http.HandlerFunc(handl.ListEvent)
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(
+		http.MethodGet,
+		"/event/list?range=day",
+		nil,
+	)
+	assert.NoErrorf(t, err, "create list event request")
+
+	srv.ServeHTTP(rec, req)
+
+	assert.Equal(t, http.StatusOK, rec.Result().StatusCode)
+
+	var res dto.ListReply
+	err = json.Unmarshal(rec.Body.Bytes(), &res)
+	assert.NoErrorf(t, err, "unmarshal body")
+
+	assert.Equal(t, 2, len(res.Result))
+	mapping := map[string]string{
+		evt1: "111",
+		evt2: "222",
+	}
+	for _, event := range res.Result {
+		if evt, ok := mapping[event.ID]; !ok {
+			t.Errorf("unexpected id=%s", event.ID)
+		} else {
+			assert.Equal(t, evt, event.Title)
+		}
+	}
+}
+
+func TestHandler_UpdateEvent(t *testing.T) {
+	logBytes := make([]byte, 0, 1000)
+	bLog := bytes.NewBuffer(logBytes)
+
+	logg, err := logger.New("DEBUG", bLog)
+	assert.NoErrorf(t, err, "fail initialize logger")
+
+	stor := memorystorage.New()
+	updateEvt, err := stor.Add(&storage.Event{
+		Title:         "111",
+		StartDatetime: time.Now(),
+		EndDatetime:   time.Now(),
+		Description:   "",
+		UserID:        "",
+		RemindBefore:  0,
+	})
+	assert.NoErrorf(t, err, "create event storage")
+
+	s := service.NewEventService(logg, stor)
+	handl := NewHandler(logg, s)
+
+	srv := http.HandlerFunc(handl.UpdateEvent)
+
+	reqEvent, err := json.Marshal(&storage.Event{
+		ID:            updateEvt,
+		Title:         "111",
+		StartDatetime: time.Now(),
+		EndDatetime:   time.Now(),
+		Description:   "111_description",
+		UserID:        "",
+		RemindBefore:  0,
+	})
+	assert.NoErrorf(t, err, "find item in storage")
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(
+		http.MethodPut,
+		fmt.Sprintf("/event?event_id=%s", updateEvt),
+		bytes.NewBuffer(reqEvent),
+	)
+	assert.NoErrorf(t, err, "update event request")
+
+	resEvt, err := stor.FindItem(updateEvt)
+	assert.NoErrorf(t, err, "find event before update")
+	assert.Equal(t, resEvt.Description, "")
+
+	srv.ServeHTTP(rec, req)
+
+	assert.Equal(t, http.StatusOK, rec.Result().StatusCode)
+
+	resEvt, err = stor.FindItem(updateEvt)
+	assert.NoErrorf(t, err, "find updated event")
+	assert.Equal(t, resEvt.Description, "111_description")
+}
