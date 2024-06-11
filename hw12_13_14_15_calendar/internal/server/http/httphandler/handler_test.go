@@ -4,17 +4,17 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+	"time"
+
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/logger"
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/server/http/dto"
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/service"
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/storage"
 	memorystorage "github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/storage/memory"
 	"github.com/stretchr/testify/assert"
-	"io"
-	"net/http"
-	"net/http/httptest"
-	"testing"
-	"time"
 )
 
 func TestHandler_CreateEvent(t *testing.T) {
@@ -29,10 +29,9 @@ func TestHandler_CreateEvent(t *testing.T) {
 	s := service.NewEventService(logg, stor)
 	handl := NewHandler(logg, s)
 
-	ts := httptest.NewServer(http.HandlerFunc(handl.CreateEvent))
-	defer ts.Close()
+	srv := http.HandlerFunc(handl.CreateEvent)
 
-	reqBody := bytes.NewBufferString(`{
+	bodyStr := bytes.NewBufferString(`{
 		"title": "1122",
 		"description": "description",
 		"user_id": "f8e51dcd-f8fd-459c-81c3-2c873e40d747",
@@ -41,19 +40,24 @@ func TestHandler_CreateEvent(t *testing.T) {
 		"end_time": "2024-06-04T20:42:33.177Z"
 	}`)
 
-	res, err := http.Post(ts.URL, "application/json", reqBody)
-	assert.NoErrorf(t, err, "call handler")
-	assert.Equal(t, http.StatusOK, res.StatusCode)
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(
+		http.MethodPost,
+		"/event/create",
+		bodyStr,
+	)
 
-	defer res.Body.Close()
-	respBody, err := io.ReadAll(res.Body)
-	assert.NoErrorf(t, err, "read response body")
+	srv.ServeHTTP(rec, req)
 
-	var result dto.CreateReply
+	result := rec.Result()
+	assert.Equal(t, http.StatusOK, result.StatusCode)
+	defer result.Body.Close()
 
-	err = json.Unmarshal(respBody, &result)
+	var createReply dto.CreateReply
+	err = json.Unmarshal(rec.Body.Bytes(), &createReply)
+
 	assert.NoError(t, err, "unmarshal response")
-	assert.True(t, result.ID != "")
+	assert.True(t, createReply.ID != "")
 }
 
 func TestHandler_DeleteEvent(t *testing.T) {
@@ -89,7 +93,9 @@ func TestHandler_DeleteEvent(t *testing.T) {
 
 	srv.ServeHTTP(rec, req)
 
-	assert.Equal(t, http.StatusOK, rec.Result().StatusCode)
+	result := rec.Result()
+	defer result.Body.Close()
+	assert.Equal(t, http.StatusOK, result.StatusCode)
 }
 
 func TestHandler_GetEvent(t *testing.T) {
@@ -125,7 +131,9 @@ func TestHandler_GetEvent(t *testing.T) {
 
 	srv.ServeHTTP(rec, req)
 
-	assert.Equal(t, http.StatusOK, rec.Result().StatusCode)
+	result := rec.Result()
+	defer result.Body.Close()
+	assert.Equal(t, http.StatusOK, result.StatusCode)
 
 	var res storage.Event
 	err = json.Unmarshal(rec.Body.Bytes(), &res)
@@ -178,7 +186,9 @@ func TestHandler_ListEvent(t *testing.T) {
 
 	srv.ServeHTTP(rec, req)
 
-	assert.Equal(t, http.StatusOK, rec.Result().StatusCode)
+	result := rec.Result()
+	defer result.Body.Close()
+	assert.Equal(t, http.StatusOK, result.StatusCode)
 
 	var res dto.ListReply
 	err = json.Unmarshal(rec.Body.Bytes(), &res)
@@ -246,7 +256,9 @@ func TestHandler_UpdateEvent(t *testing.T) {
 
 	srv.ServeHTTP(rec, req)
 
-	assert.Equal(t, http.StatusOK, rec.Result().StatusCode)
+	result := rec.Result()
+	defer result.Body.Close()
+	assert.Equal(t, http.StatusOK, result.StatusCode)
 
 	resEvt, err = stor.FindItem(updateEvt)
 	assert.NoErrorf(t, err, "find updated event")
