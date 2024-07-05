@@ -64,7 +64,6 @@ func main() {
 	}
 
 	logg.Info(fmt.Sprintf("dropped old items coutnt: %d", dropCount))
-	logg.Info(config.Rabbit.Dsn)
 	rc, err := amqp.Dial(config.Rabbit.Dsn)
 	shortcuts.FatalIfErr(err)
 
@@ -79,7 +78,7 @@ func main() {
 	shortcuts.FatalIfErr(err)
 
 	ticker := time.NewTicker(duration)
-
+	logg.Info(fmt.Sprintf("scheduler starterd with duration: %s", config.Interval))
 forloop:
 	for {
 		select {
