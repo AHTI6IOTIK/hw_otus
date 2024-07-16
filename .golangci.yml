@@ -28,6 +28,7 @@ linters-settings:
           - github.com/google/uuid
           - google.golang.org/protobuf
           - google.golang.org/grpc
+          - github.com/streadway/amqp
 
 issues:
   exclude-rules:
