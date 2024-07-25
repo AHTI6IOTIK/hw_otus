@@ -58,6 +58,4 @@ services:
     build:
       context: ../
       dockerfile: deployments/integra-tests/Dockerfile
-    depends_on:
-      - calendar-postgres
     restart: no

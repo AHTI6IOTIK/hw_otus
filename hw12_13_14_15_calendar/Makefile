@@ -62,4 +62,7 @@ up:
 down:
 	COMPOSE_PROJECT_NAME="calendar" docker compose -f ./deployments/docker-compose.yaml down
 
-.PHONY: build run build-img run-img version test lint proto
+integration-tests:
+	COMPOSE_PROJECT_NAME="calendar" docker compose -f ./deployments/docker-compose.yaml up --exit-code-from integra-tests integra-tests --build
+
+.PHONY: build run build-img run-img version test lint proto integration-tests migrate-up migrate-down up down generat
