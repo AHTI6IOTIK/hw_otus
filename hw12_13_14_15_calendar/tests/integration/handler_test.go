@@ -1,9 +1,10 @@
-package httphandler
+package integration
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/server/http/httphandler"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -27,7 +28,7 @@ func TestHandler_CreateEvent(t *testing.T) {
 	stor := memorystorage.New()
 
 	s := service.NewEventService(logg, stor)
-	handl := NewHandler(logg, s)
+	handl := httphandler.NewHandler(logg, s)
 
 	srv := http.HandlerFunc(handl.CreateEvent)
 
@@ -79,7 +80,7 @@ func TestHandler_DeleteEvent(t *testing.T) {
 	assert.NoErrorf(t, err, "create event storage")
 
 	s := service.NewEventService(logg, stor)
-	handl := NewHandler(logg, s)
+	handl := httphandler.NewHandler(logg, s)
 
 	srv := http.HandlerFunc(handl.DeleteEvent)
 
@@ -117,7 +118,7 @@ func TestHandler_GetEvent(t *testing.T) {
 	assert.NoErrorf(t, err, "create event storage")
 
 	s := service.NewEventService(logg, stor)
-	handl := NewHandler(logg, s)
+	handl := httphandler.NewHandler(logg, s)
 
 	srv := http.HandlerFunc(handl.GetEvent)
 
@@ -172,7 +173,7 @@ func TestHandler_ListEvent(t *testing.T) {
 	assert.NoErrorf(t, err, "create event storage 2")
 
 	s := service.NewEventService(logg, stor)
-	handl := NewHandler(logg, s)
+	handl := httphandler.NewHandler(logg, s)
 
 	srv := http.HandlerFunc(handl.ListEvent)
 
@@ -227,7 +228,7 @@ func TestHandler_UpdateEvent(t *testing.T) {
 	assert.NoErrorf(t, err, "create event storage")
 
 	s := service.NewEventService(logg, stor)
-	handl := NewHandler(logg, s)
+	handl := httphandler.NewHandler(logg, s)
 
 	srv := http.HandlerFunc(handl.UpdateEvent)
 
