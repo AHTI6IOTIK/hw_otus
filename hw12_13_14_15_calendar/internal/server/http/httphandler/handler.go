@@ -163,6 +163,20 @@ func (h *Handler) ListEvent(
 	}
 }
 
+func (h *Handler) Health(
+	w http.ResponseWriter,
+	_ *http.Request,
+) {
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *Handler) Ready(
+	w http.ResponseWriter,
+	_ *http.Request,
+) {
+	w.WriteHeader(http.StatusOK)
+}
+
 func readBody(r *http.Request) ([]byte, error) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
