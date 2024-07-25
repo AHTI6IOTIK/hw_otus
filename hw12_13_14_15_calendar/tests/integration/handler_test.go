@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/server/http/httphandler"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/logger"
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/server/http/dto"
+	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/server/http/httphandler"
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/service"
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/storage"
 	memorystorage "github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/storage/memory"

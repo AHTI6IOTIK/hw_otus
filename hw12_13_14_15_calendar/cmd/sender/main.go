@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/storage/database"
-	sqlstorage "github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/storage/sql"
 	"os"
 	"os/signal"
 	"syscall"
@@ -15,6 +13,8 @@ import (
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/logger"
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/service/rabbitmq"
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/storage"
+	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/storage/database"
+	sqlstorage "github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/storage/sql"
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/pkg/shortcuts"
 	"github.com/streadway/amqp"
 )
