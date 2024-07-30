@@ -13,6 +13,8 @@ import (
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/logger"
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/service/rabbitmq"
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/storage"
+	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/storage/database"
+	sqlstorage "github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/storage/sql"
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/pkg/shortcuts"
 	"github.com/streadway/amqp"
 )
@@ -55,6 +57,17 @@ func main() {
 	messageChannel, err := rabbit.Consume()
 	shortcuts.FatalIfErr(err)
 
+	db := database.New(
+		&config.Database,
+		logg,
+	)
+	defer db.Close(ctx)
+
+	err = db.Connect(ctx)
+	shortcuts.FatalIfErr(err)
+
+	sendStorage := sqlstorage.NewSendStorage(db, logg)
+
 foorloop:
 	for {
 		select {
@@ -68,6 +81,18 @@ foorloop:
 			err := json.Unmarshal(d.Body, &evt)
 			if err != nil {
 				logg.Info(fmt.Sprintf("error decoding JSON: %s", err))
+			}
+
+			err = sendStorage.Add(fmt.Sprintf(
+				"Notification by event #%s, %s: %s",
+				evt.ID,
+				evt.Title,
+				evt.Description,
+			))
+			if err != nil {
+				logg.Error(fmt.Errorf("fail send notification: %w", err))
+			} else {
+				logg.Info("notification success sent")
 			}
 
 			if err := d.Ack(false); err != nil {
