@@ -9,7 +9,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/app"
 	config2 "github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/config"
 	"github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/logger"
 	internalgrpc "github.com/AHTI6IOTIK/hw_otus/hw12_13_14_15_calendar/internal/server/grpc"
@@ -59,8 +58,6 @@ func main() {
 	} else {
 		eventStorage = memorystorage.New()
 	}
-
-	_ = app.New(logg, eventStorage)
 
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)

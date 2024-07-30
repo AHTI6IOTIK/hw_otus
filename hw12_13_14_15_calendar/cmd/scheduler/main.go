@@ -90,12 +90,17 @@ forloop:
 			}
 
 			if len(events) > 0 {
+				for _, event := range events {
+					logg.Info(fmt.Sprintf("process event: %s", event.ID))
+				}
 				err := rabbit.PublishMessages(events)
 				if err != nil {
 					logg.Error(err)
 					cancel()
 					break forloop
 				}
+			} else {
+				logg.Info("no messages for send")
 			}
 		case <-ctx.Done():
 			logg.Info("context cancelled")
